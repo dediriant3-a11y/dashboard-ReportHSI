@@ -27,7 +27,6 @@
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
     }
 
-    /* Upload Box Bar */
     .upload-bar {
       background: #eef5ff;
       border: 2px dashed #0f4c81;
@@ -210,13 +209,13 @@
   <div class="container">
     <!-- Section Upload Excel -->
     <div class="upload-bar" id="dropZone">
-      <div style="font-weight: 600; font-size: 15px; color: #0f4c81;">📁 Upload File Excel (Membaca Sheet4)</div>
-      <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Pilih atau drag & drop file Excel (.xlsx / .xls) Anda di sini</div>
+      <div style="font-weight: 600; font-size: 15px; color: #0f4c81;">📁 Data Server Aktif (`data.xlsx`)</div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Atau upload file Excel lokal untuk mempratinjau data sementara</div>
       <label class="btn-upload">
-        Pilih File Excel
+        Upload File Sementara
         <input type="file" id="excelFileInput" accept=".xlsx, .xls" />
       </label>
-      <div id="fileNameDisplay" style="margin-top: 8px; font-weight: 600; font-size: 13px; color: #10b981;"></div>
+      <div id="fileNameDisplay" style="margin-top: 8px; font-weight: 600; font-size: 13px; color: #10b981;">Loading data server...</div>
     </div>
 
     <div class="header">
@@ -226,9 +225,9 @@
         </h1>
 
         <div style="margin-top:8px; font-size:14px; color:#475569; line-height:1.7;">
-          <div><strong>Tanggal Report :</strong> <span id="reportDate">2026-08-05</span></div>
-          <div><strong>Periode Order &amp; PS :</strong> <span id="reportPeriod">2026-03-01 to 2026-08-04</span></div>
-          <div><strong>Last Update Proses :</strong> <span id="reportUpdate">05-08-2026 09:19:06 WIB</span></div>
+          <div><strong>Tanggal Report :</strong> <span id="reportDate">-</span></div>
+          <div><strong>Periode Order &amp; PS :</strong> <span id="reportPeriod">-</span></div>
+          <div><strong>Last Update Proses :</strong> <span id="reportUpdate">-</span></div>
         </div>
       </div>
       <div class="badge">Telkom Regional 3 Jatim Bali Nusra</div>
@@ -237,19 +236,19 @@
     <div class="cards">
       <div class="card">
         <h3>PI</h3>
-        <div class="value" id="cardPI">23</div>
+        <div class="value" id="cardPI">0</div>
       </div>
       <div class="card">
         <h3>QC2</h3>
-        <div class="value" id="cardQC2">7</div>
+        <div class="value" id="cardQC2">0</div>
       </div>
       <div class="card">
         <h3>TOTAL FALLOUT</h3>
-        <div class="value" id="cardFallout">12</div>
+        <div class="value" id="cardFallout">0</div>
       </div>
       <div class="card">
         <h3>PS</h3>
-        <div class="value" id="cardPS">141</div>
+        <div class="value" id="cardPS">0</div>
       </div>
     </div>
 
@@ -280,59 +279,7 @@
       </thead>
       <tbody id="tableBody">
         <tr>
-          <td class="witel">NUSA TENGGARA</td>
-          <td>0</td>
-          <td>12</td>
-          <td>0</td>
-          <td>3</td>
-          <td>23</td>
-          <td class="red">48.94%</td>
-          <td class="red">60.53%</td>
-          <td class="green">100.00%</td>
-        </tr>
-        <tr>
-          <td class="witel">SURAMADU</td>
-          <td>0</td>
-          <td>3</td>
-          <td>5</td>
-          <td>0</td>
-          <td>27</td>
-          <td class="red">56.25%</td>
-          <td class="red">77.14%</td>
-          <td class="green">100.00%</td>
-        </tr>
-        <tr>
-          <td class="witel">JATIM TIMUR</td>
-          <td>0</td>
-          <td>6</td>
-          <td>0</td>
-          <td>2</td>
-          <td>39</td>
-          <td class="red">61.90%</td>
-          <td class="red">82.98%</td>
-          <td class="green">100.00%</td>
-        </tr>
-        <tr>
-          <td class="witel">BALI</td>
-          <td>0</td>
-          <td>1</td>
-          <td>7</td>
-          <td>1</td>
-          <td>15</td>
-          <td class="red">46.88%</td>
-          <td class="red">62.50%</td>
-          <td class="green">100.00%</td>
-        </tr>
-        <tr>
-          <td class="witel">JATIM BARAT</td>
-          <td>0</td>
-          <td>1</td>
-          <td>0</td>
-          <td>1</td>
-          <td>37</td>
-          <td class="red">66.07%</td>
-          <td class="green">94.87%</td>
-          <td class="green">100.00%</td>
+          <td colspan="9">Memuat data dari server...</td>
         </tr>
       </tbody>
     </table>
@@ -347,7 +294,6 @@
   </div>
 
   <script>
-    // Inisialisasi Grafik Chart.js
     let barChartInstance = null;
     let pieChartInstance = null;
 
@@ -389,28 +335,26 @@
       });
     }
 
-    // Default chart setup
-    initCharts(
-      ['NUSA TENGGARA', 'SURAMADU', 'JATIM TIMUR', 'BALI', 'JATIM BARAT'],
-      [23, 27, 39, 15, 37],
-      [0, 23, 12, 7, 141]
-    );
-
-    // Event Listener untuk Upload File Excel
-    document.getElementById('excelFileInput').addEventListener('change', handleFileSelect, false);
-
-    // Handling Drag and Drop
-    const dropZone = document.getElementById('dropZone');
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.background = '#e2eeff'; });
-    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.background = '#eef5ff'; });
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.style.background = '#eef5ff';
-      if (e.dataTransfer.files.length) {
-        document.getElementById('excelFileInput').files = e.dataTransfer.files;
-        handleFileSelect({ target: { files: e.dataTransfer.files } });
-      }
+    // Otomatis mengambil file data.xlsx dari server/repositori saat web dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('data.xlsx?v=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) throw new Error("File data.xlsx belum diupload di repositori.");
+          return response.arrayBuffer();
+        })
+        .then(buffer => {
+          const data = new Uint8Array(buffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          processWorkbook(workbook, "data.xlsx (Server)");
+        })
+        .catch(err => {
+          document.getElementById('fileNameDisplay').innerText = `⚠️ ${err.message}`;
+          document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="color:red;">File 'data.xlsx' belum ditemukan di GitHub. Silakan upload file data.xlsx ke repositori.</td></tr>`;
+        });
     });
+
+    // Event Listener untuk Upload Lokal (Preview)
+    document.getElementById('excelFileInput').addEventListener('change', handleFileSelect, false);
 
     function handleFileSelect(event) {
       const file = event.target.files[0];
@@ -420,37 +364,27 @@
       reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-
-        // LOGIKA PENENTUAN SHEET4:
-        // 1. Cari sheet dengan nama persis "Sheet4" (case-insensitive)
-        // 2. Jika tidak ada, ambil sheet urutan ke-4 (index 3)
-        // 3. Jika jumlah sheet < 4, fallback ke sheet terakhir yang tersedia
-        let targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === "sheet4");
-        
-        if (!targetSheetName) {
-          if (workbook.SheetNames.length >= 4) {
-            targetSheetName = workbook.SheetNames[3];
-          } else {
-            targetSheetName = workbook.SheetNames[workbook.SheetNames.length - 1];
-          }
-        }
-
-        document.getElementById('fileNameDisplay').innerText = `File Terpasang: ${file.name} (Memproses Sheet: ${targetSheetName})`;
-
-        const sheet = workbook.Sheets[targetSheetName];
-        if (!sheet) {
-          alert("Sheet4 tidak ditemukan di dalam file Excel ini.");
-          return;
-        }
-        
-        // Konversi sheet menjadi matrix 2D array
-        const jsonMatrix = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        processExcelData(jsonMatrix, file);
+        processWorkbook(workbook, file.name);
       };
       reader.readAsArrayBuffer(file);
     }
 
-    function processExcelData(matrix, file) {
+    function processWorkbook(workbook, sourceName) {
+      let targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === "sheet4");
+      if (!targetSheetName) {
+        targetSheetName = workbook.SheetNames.length >= 4 ? workbook.SheetNames[3] : workbook.SheetNames[workbook.SheetNames.length - 1];
+      }
+
+      document.getElementById('fileNameDisplay').innerText = `Data Aktif: ${sourceName} [Sheet: ${targetSheetName}]`;
+
+      const sheet = workbook.Sheets[targetSheetName];
+      if (!sheet) return;
+
+      const jsonMatrix = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      processExcelData(jsonMatrix);
+    }
+
+    function processExcelData(matrix) {
       if (!matrix || matrix.length === 0) return;
 
       let title = "";
@@ -459,31 +393,22 @@
       let excelDateReport = "";
       let tableHeaderIdx = -1;
 
-      // Scanning Metadata & Posisi Header Tabel
       for (let r = 0; r < matrix.length; r++) {
         const row = matrix[r];
         if (!row) continue;
         
         const rowStr = row.map(cell => String(cell || "")).join(" ");
 
-        if (rowStr.includes("PROVISIONING NEW SALES")) {
-          title = rowStr.trim();
-        }
+        if (rowStr.includes("PROVISIONING NEW SALES")) title = rowStr.trim();
         if (rowStr.includes("PERIODE ORDER")) {
-          period = rowStr.substring(rowStr.indexOf("PERIODE ORDER")).trim();
-          period = period.replace("PERIODE ORDER & PS :", "").trim();
+          period = rowStr.substring(rowStr.indexOf("PERIODE ORDER")).trim().replace("PERIODE ORDER & PS :", "").trim();
         }
         if (rowStr.toLowerCase().includes("last update")) {
-          lastUpdate = rowStr.substring(rowStr.toLowerCase().indexOf("last update")).trim();
-          lastUpdate = lastUpdate.replace(/Last update proses :/i, "").replace(/Last Update Proses :/i, "").trim();
-          
+          lastUpdate = rowStr.substring(rowStr.toLowerCase().indexOf("last update")).trim().replace(/Last update proses :/i, "").trim();
           const dateMatch = lastUpdate.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
-          if (dateMatch) {
-            excelDateReport = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-          }
+          if (dateMatch) excelDateReport = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
         }
 
-        // Cari indeks baris header yang berisi label WITEL
         for (let c = 0; c < row.length; c++) {
           if (row[c] && String(row[c]).trim().toUpperCase() === "WITEL") {
             tableHeaderIdx = r;
@@ -496,46 +421,20 @@
       if (title) document.getElementById('reportTitle').innerText = title;
       if (period) document.getElementById('reportPeriod').innerText = period;
       if (lastUpdate) document.getElementById('reportUpdate').innerText = lastUpdate;
+      if (excelDateReport) document.getElementById('reportDate').innerText = excelDateReport;
 
-      // Update Tanggal Report Otomatis
-      if (excelDateReport) {
-        document.getElementById('reportDate').innerText = excelDateReport;
-      } else if (file && file.lastModified) {
-        const fileDate = new Date(file.lastModified);
-        const yyyy = fileDate.getFullYear();
-        const mm = String(fileDate.getMonth() + 1).padStart(2, '0');
-        const dd = String(fileDate.getDate()).padStart(2, '0');
-        document.getElementById('reportDate').innerText = `${yyyy}-${mm}-${dd}`;
-      } else {
-        const now = new Date();
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        document.getElementById('reportDate').innerText = `${yyyy}-${mm}-${dd}`;
-      }
+      if (tableHeaderIdx === -1) return;
 
-      if (tableHeaderIdx === -1) {
-        alert("Header kolom 'WITEL' tidak ditemukan pada Sheet4.");
-        return;
-      }
-
-      // Gabungkan header bertingkat jika ada
       const headers = [];
       const primaryHeaderRow = matrix[tableHeaderIdx];
       
       for (let c = 0; c < primaryHeaderRow.length; c++) {
         let colName = String(primaryHeaderRow[c] || "").trim();
-        
-        if (!colName && tableHeaderIdx > 0 && matrix[tableHeaderIdx - 1][c]) {
-          colName = String(matrix[tableHeaderIdx - 1][c]).trim();
-        }
-        if (!colName && tableHeaderIdx + 1 < matrix.length && matrix[tableHeaderIdx + 1][c]) {
-          colName = String(matrix[tableHeaderIdx + 1][c]).trim();
-        }
+        if (!colName && tableHeaderIdx > 0 && matrix[tableHeaderIdx - 1][c]) colName = String(matrix[tableHeaderIdx - 1][c]).trim();
+        if (!colName && tableHeaderIdx + 1 < matrix.length && matrix[tableHeaderIdx + 1][c]) colName = String(matrix[tableHeaderIdx + 1][c]).trim();
         headers.push(colName);
       }
 
-      // Pemetaan Kolom
       const colMap = {};
       headers.forEach((h, idx) => {
         const upper = h.toUpperCase();
@@ -553,7 +452,6 @@
       const rowsData = [];
       let totalRow = null;
 
-      // Pembacaan Data
       for (let r = tableHeaderIdx + 1; r < matrix.length; r++) {
         const row = matrix[r];
         if (!row || row.length === 0) continue;
@@ -562,10 +460,7 @@
         if (!witelVal) continue;
 
         const uppercaseWitel = witelVal.toUpperCase();
-
-        if (uppercaseWitel.includes("KETERANGAN") || uppercaseWitel.includes("NOTE") || uppercaseWitel.includes("CATATAN")) {
-          break;
-        }
+        if (uppercaseWitel.includes("KETERANGAN") || uppercaseWitel.includes("NOTE") || uppercaseWitel.includes("CATATAN")) break;
 
         const parseVal = (idx) => {
           if (idx === undefined || row[idx] === undefined) return 0;
@@ -595,7 +490,6 @@
         }
       }
 
-      // Update Summary Cards
       const sumPI = totalRow ? totalRow.pi : rowsData.reduce((acc, cur) => acc + cur.pi, 0);
       const sumQC2 = totalRow ? totalRow.qc2 : rowsData.reduce((acc, cur) => acc + cur.qc2, 0);
       const sumFallout = totalRow ? totalRow.fallout : rowsData.reduce((acc, cur) => acc + cur.fallout, 0);
@@ -606,7 +500,6 @@
       document.getElementById('cardFallout').innerText = sumFallout;
       document.getElementById('cardPS').innerText = sumPS;
 
-      // Rebuild Tabel Body
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = "";
 
@@ -648,7 +541,6 @@
         tbody.appendChild(tr);
       });
 
-      // Update Chart
       const barLabels = rowsData.map(d => d.witel);
       const barData = rowsData.map(d => d.ps);
       const totPrePi = totalRow ? totalRow.prePi : rowsData.reduce((a, b) => a + b.prePi, 0);
