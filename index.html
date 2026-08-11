@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Corporate Live Excel Update - Sheet4</title>
+  <!-- Chart.js for graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS / xlsx library -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: linear-gradient(135deg, #f4f7fb, #e8eef7); color: #1f2937; padding: 24px; }
+    .container { max-width: 1400px; margin: auto; background: #ffffff; border: 1px solid #dce4ef; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08); }
+    .upload-bar { background: #eef5ff; border: 2px dashed #0f4c81; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px; }
+    .upload-bar input[type="file"] { display: none; }
+    .btn-upload { background: #0f4c81; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-block; margin-top: 6px; font-size: 14px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 14px; margin-bottom: 20px; }
+    .badge { background: #0f4c81; color: white; padding: 8px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .card { background: linear-gradient(135deg, #f8fbff, #eef5ff); border: 1px solid #dbe7f9; border-radius: 12px; padding: 16px; }
+    .card h3 { margin: 0 0 8px; font-size: 13px; color: #475569; text-transform: uppercase; }
+    .card .value { font-size: 24px; font-weight: 700; color: #0f4c81; }
+    .charts { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; margin-bottom: 20px; }
+    .panel { background: #f9fbfd; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; }
+    canvas { width: 100% !important; height: 260px !important; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+    th { background: #0f4c81; color: white; padding: 12px; text-align: center; font-size: 13px; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-size: 13px; }
+    .witel { text-align: left; font-weight: 600; color: #1f2937; }
+    .green { color: #0f9d58; font-weight: 700; }
+    .red { color: #d62828; font-weight: 700; }
+    .notes { margin-top: 20px; background: #f8fbff; border-left: 4px solid #0f4c81; padding: 12px 14px; border-radius: 8px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="upload-bar" id="dropZone">
+      <div style="font-weight: 600; font-size: 15px; color: #0f4c81;">📁 Data Terhubung Online (GitHub)</div>
+      <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Atau upload file Excel (.xlsx / .xls) secara manual jika ingin mengganti data</div>
+      <label class="btn-upload">
+        Pilih File Excel Manual
+        <input type="file" id="excelFileInput" accept=".xlsx, .xls" />
+      </label>
+      <div id="fileNameDisplay" style="margin-top: 8px; font-weight: 600; font-size: 13px; color: #10b981;">Memuat data dari GitHub...</div>
+    </div>
+
+    <div class="header">
+      <div>
+        <h1 id="reportTitle" style="margin:0; font-size:24px; color:#0f172a;">
+          PROVISIONING NEW SALES INDIBIZ TR3 JBN MTD H-1
+        </h1>
+        <div style="margin-top:8px; font-size:14px; color:#475569; line-height:1.7;">
+          <div><strong>Tanggal Report :</strong> <span id="reportDate">-</span></div>
+          <div><strong>Periode Order &amp; PS :</strong> <span id="reportPeriod">-</span></div>
+          <div><strong>Last Update Proses :</strong> <span id="reportUpdate">-</span></div>
+        </div>
+      </div>
+      <div class="badge">Telkom Regional 3 Jatim Bali Nusra</div>
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>PI</h3><div class="value" id="cardPI">0</div></div>
+      <div class="card"><h3>QC2</h3><div class="value" id="cardQC2">0</div></div>
+      <div class="card"><h3>TOTAL FALLOUT</h3><div class="value" id="cardFallout">0</div></div>
+      <div class="card"><h3>PS</h3><div class="value" id="cardPS">0</div></div>
+    </div>
+
+    <div class="charts">
+      <div class="panel">
+        <h3>Grafik Batang - Distribusi PS per WITEL</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="panel">
+        <h3>Grafik Pie - Komposisi Status</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>WITEL</th>
+          <th>PRE PI</th>
+          <th>PI</th>
+          <th>TOTAL FALLOUT</th>
+          <th>QC2</th>
+          <th>PS</th>
+          <th>PS/RE (%) (Target 80%)</th>
+          <th>PS/PI (%) (Target 94%)</th>
+          <th>TTI COMPLY 1X24 (%) (Target 94%)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <div class="notes">
+      <strong>* SLA WISA 2026 </strong><br>
+      1. TTI Compliance HSI (AO/MO) | 1x24 jam 94%<br>
+      2. Compliance Order Aging (AOSODOMORO) 3x24 jam 90%<br>
+      3. PS to PI Ratio HSI (AO/MO/PDA) 94%<br>
+      4. Fallout Order HSI (AOSODOMORO) 1x12 jam> 90%<br>
+    </div>
+  </div>
+
+  <script>
+    // 1. MASUKKAN LINK RAW GITHUB FILE EXCEL ANDA DI SINI:
+    const GITHUB_EXCEL_URL = "https://raw.githubusercontent.com/dediriant3-a11y/dashboard-ReportHSI/main/data.xlsx?t=" + new Date().getTime();
+
+    let barChartInstance = null;
+    let pieChartInstance = null;
+
+    function initCharts(barLabels, barData, pieData) {
+      const barCtx = document.getElementById('barChart').getContext('2d');
+      if (barChartInstance) barChartInstance.destroy();
+      barChartInstance = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: barLabels,
+          datasets: [{ label: 'PS', data: barData, backgroundColor: ['#0f4c81', '#2d6cdf', '#3b82f6', '#60a5fa', '#93c5fd'] }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      if (pieChartInstance) pieChartInstance.destroy();
+      pieChartInstance = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: ['PRE PI', 'PI', 'FALLOUT', 'QC2', 'PS'],
+          datasets: [{ data: pieData, backgroundColor: ['#0f4c81', '#2d6cdf', '#ef4444', '#f59e0b', '#10b981'] }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    // Load file dari GitHub secara otomatis saat halaman dibuka
+    window.addEventListener('DOMContentLoaded', () => {
+      loadExcelFromUrl(GITHUB_EXCEL_URL);
+    });
+
+    function loadExcelFromUrl(url) {
+      document.getElementById('fileNameDisplay').innerText = "Mengunduh & memproses data dari GitHub...";
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error("Gagal mengambil file dari GitHub. Pastikan URL berbentuk RAW.");
+          return res.arrayBuffer();
+        })
+        .then(buffer => {
+          const data = new Uint8Array(buffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          parseWorkbook(workbook, "GitHub Online");
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('fileNameDisplay').innerText = "Gagal memuat file dari GitHub (Gunakan Upload Manual).";
+        });
+    }
+
+    // Handling Upload Manual
+    document.getElementById('excelFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        parseWorkbook(workbook, file.name, file);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function parseWorkbook(workbook, sourceName, file = null) {
+      let targetSheetName = workbook.SheetNames.find(s => s.toLowerCase() === "sheet4");
+      if (!targetSheetName) {
+        targetSheetName = workbook.SheetNames.length >= 4 ? workbook.SheetNames[3] : workbook.SheetNames[workbook.SheetNames.length - 1];
+      }
+
+      document.getElementById('fileNameDisplay').innerText = `Sumber Data: ${sourceName} (Sheet: ${targetSheetName})`;
+      const sheet = workbook.Sheets[targetSheetName];
+      if (!sheet) { alert("Sheet4 tidak ditemukan."); return; }
+
+      const jsonMatrix = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      processExcelData(jsonMatrix, file);
+    }
+
+    function processExcelData(matrix, file) {
+      if (!matrix || matrix.length === 0) return;
+
+      let title = ""; let period = ""; let lastUpdate = ""; let excelDateReport = "";
+      let tableHeaderIdx = -1;
+
+      for (let r = 0; r < matrix.length; r++) {
+        const row = matrix[r];
+        if (!row) continue;
+        const rowStr = row.map(cell => String(cell || "")).join(" ");
+
+        if (rowStr.includes("PROVISIONING NEW SALES")) title = rowStr.trim();
+        if (rowStr.includes("PERIODE ORDER")) {
+          period = rowStr.substring(rowStr.indexOf("PERIODE ORDER")).trim().replace("PERIODE ORDER & PS :", "").trim();
+        }
+        if (rowStr.toLowerCase().includes("last update")) {
+          lastUpdate = rowStr.substring(rowStr.toLowerCase().indexOf("last update")).trim()
+            .replace(/Last update proses :/i, "").replace(/Last Update Proses :/i, "").trim();
+          const dateMatch = lastUpdate.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+          if (dateMatch) excelDateReport = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+        }
+
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] && String(row[c]).trim().toUpperCase() === "WITEL") {
+            tableHeaderIdx = r;
+            break;
+          }
+        }
+        if (tableHeaderIdx !== -1) break;
+      }
+
+      if (title) document.getElementById('reportTitle').innerText = title;
+      if (period) document.getElementById('reportPeriod').innerText = period;
+      if (lastUpdate) document.getElementById('reportUpdate').innerText = lastUpdate;
+      document.getElementById('reportDate').innerText = excelDateReport || "2026-08-10";
+
+      if (tableHeaderIdx === -1) { alert("Header 'WITEL' tidak ditemukan."); return; }
+
+      const headers = matrix[tableHeaderIdx].map(h => String(h || "").trim());
+      const colMap = {};
+      headers.forEach((h, idx) => {
+        const upper = h.toUpperCase();
+        if (upper.includes("WITEL")) colMap.witel = idx;
+        else if (upper.includes("PRE PI")) colMap.prePi = idx;
+        else if (upper === "PI") colMap.pi = idx;
+        else if (upper.includes("FALLOUT")) colMap.fallout = idx;
+        else if (upper.includes("QC2")) colMap.qc2 = idx;
+        else if (upper === "PS") colMap.ps = idx;
+        else if (upper.includes("PS/RE")) colMap.psRe = idx;
+        else if (upper.includes("PS/PI")) colMap.psPi = idx;
+        else if (upper.includes("TTI COMPLY")) colMap.tti = idx;
+      });
+
+      const rowsData = [];
+      let totalRow = null;
+
+      for (let r = tableHeaderIdx + 1; r < matrix.length; r++) {
+        const row = matrix[r];
+        if (!row || row.length === 0) continue;
+        const witelVal = String(row[colMap.witel] || "").trim();
+        if (!witelVal) continue;
+
+        const parseVal = (idx) => {
+          if (idx === undefined || row[idx] === undefined) return 0;
+          const num = parseFloat(String(row[idx]).replace(/,/g, ''));
+          return isNaN(num) ? 0 : num;
+        };
+
+        const item = {
+          witel: witelVal,
+          prePi: parseVal(colMap.prePi),
+          pi: parseVal(colMap.pi),
+          fallout: parseVal(colMap.fallout),
+          qc2: parseVal(colMap.qc2),
+          ps: parseVal(colMap.ps),
+          psRe: colMap.psRe !== undefined ? row[colMap.psRe] : 0,
+          psPi: colMap.psPi !== undefined ? row[colMap.psPi] : 0,
+          tti: colMap.tti !== undefined ? row[colMap.tti] : 1.0
+        };
+
+        if (witelVal.toUpperCase() === "TOTAL") { totalRow = item; break; } 
+        else { rowsData.push(item); }
+      }
+
+      const sumPI = totalRow ? totalRow.pi : rowsData.reduce((a, b) => a + b.pi, 0);
+      const sumQC2 = totalRow ? totalRow.qc2 : rowsData.reduce((a, b) => a + b.qc2, 0);
+      const sumFallout = totalRow ? totalRow.fallout : rowsData.reduce((a, b) => a + b.fallout, 0);
+      const sumPS = totalRow ? totalRow.ps : rowsData.reduce((a, b) => a + b.ps, 0);
+
+      document.getElementById('cardPI').innerText = sumPI;
+      document.getElementById('cardQC2').innerText = sumQC2;
+      document.getElementById('cardFallout').innerText = sumFallout;
+      document.getElementById('cardPS').innerText = sumPS;
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = "";
+
+      rowsData.forEach(item => {
+        const tr = document.createElement('tr');
+        const formatPercent = (val) => {
+          if (val === undefined || val === null) return "0.00%";
+          const num = parseFloat(val);
+          if (isNaN(num)) return "0.00%";
+          return (num <= 1 ? num * 100 : num).toFixed(2) + "%";
+        };
+
+        const psReFormatted = formatPercent(item.psRe);
+        const psPiFormatted = formatPercent(item.psPi);
+        const ttiFormatted = formatPercent(item.tti);
+
+        tr.innerHTML = `
+          <td class="witel">${item.witel}</td>
+          <td>${item.prePi}</td>
+          <td>${item.pi}</td>
+          <td>${item.fallout}</td>
+          <td>${item.qc2}</td>
+          <td>${item.ps}</td>
+          <td class="${parseFloat(psReFormatted) >= 80 ? 'green' : 'red'}">${psReFormatted}</td>
+          <td class="${parseFloat(psPiFormatted) >= 94 ? 'green' : 'red'}">${psPiFormatted}</td>
+          <td class="${parseFloat(ttiFormatted) >= 94 ? 'green' : 'red'}">${ttiFormatted}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const barLabels = rowsData.map(d => d.witel);
+      const barData = rowsData.map(d => d.ps);
+      const totPrePi = totalRow ? totalRow.prePi : rowsData.reduce((a, b) => a + b.prePi, 0);
+
+      initCharts(barLabels, barData, [totPrePi, sumPI, sumFallout, sumQC2, sumPS]);
+    }
+  </script>
+</body>
+</html>
